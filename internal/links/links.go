@@ -17,12 +17,12 @@ type Link struct {
 
 // Save ...
 func (link Link) Save() int64 {
-	stmt, err := db.DB.Prepare("INSERT INTO links (title, address) VALUES(?,?)")
+	stmt, err := db.DB.Prepare("INSERT INTO links (description, url, user_id) VALUES(?,?,?)")
 	if err != nil {
 		log.Fatal("Error preparing insert statement, ", err)
 	}
 
-	result, err := stmt.Exec(link.Description, link.URL)
+	result, err := stmt.Exec(link.Description, link.URL, link.User.ID)
 	if err != nil {
 		log.Fatal("Error executing prepared statement, ", err)
 	}
@@ -37,7 +37,11 @@ func (link Link) Save() int64 {
 
 // GetAll ...
 func GetAll() []Link {
-	rows, err := db.DB.Query("SELECT id, title, address FROM links")
+	rows, err := db.DB.Query(
+		"SELECT l.id, l.description, l.url, u.id, u.username " +
+			"FROM links l, users u " +
+			"WHERE l.user_id = u.id")
+
 	if err != nil {
 		log.Fatal("Error querying database, ", err)
 	}
@@ -46,10 +50,12 @@ func GetAll() []Link {
 	var links []Link
 	for rows.Next() {
 		var link Link
-		err := rows.Scan(&link.ID, &link.Description, &link.URL)
+		var user users.User
+		err := rows.Scan(&link.ID, &link.Description, &link.URL, &user.ID, &user.Username)
 		if err != nil {
 			log.Fatal("Error parsing query result, ", err)
 		}
+		link.User = &user
 		links = append(links, link)
 	}
 

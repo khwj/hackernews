@@ -51,8 +51,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateLink   func(childComplexity int, input model.NewLink) int
-		CreateUser   func(childComplexity int, input model.NewUser) int
+		CreateLink   func(childComplexity int, input model.LinkInput) int
+		CreateUser   func(childComplexity int, input model.UserInput) int
 		Login        func(childComplexity int, input model.Login) int
 		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
 	}
@@ -68,8 +68,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error)
-	CreateUser(ctx context.Context, input model.NewUser) (string, error)
+	CreateLink(ctx context.Context, input model.LinkInput) (*model.Link, error)
+	CreateUser(ctx context.Context, input model.UserInput) (string, error)
 	Login(ctx context.Context, input model.Login) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 }
@@ -130,7 +130,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateLink(childComplexity, args["input"].(model.NewLink)), true
+		return e.complexity.Mutation.CreateLink(childComplexity, args["input"].(model.LinkInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -142,7 +142,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.NewUser)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -269,7 +269,7 @@ type Query {
   links: [Link!]!
 }
 
-input NewLink {
+input LinkInput {
   description: String!
   url: String!
 }
@@ -278,7 +278,7 @@ input RefreshTokenInput {
   token: String!
 }
 
-input NewUser {
+input UserInput {
   username: String!
   password: String!
 }
@@ -289,8 +289,8 @@ input Login {
 }
 
 type Mutation {
-  createLink(input: NewLink!): Link!
-  createUser(input: NewUser!): String!
+  createLink(input: LinkInput!): Link!
+  createUser(input: UserInput!): String!
   login(input: Login!): String!
   # we'll talk about this in authentication section
   refreshToken(input: RefreshTokenInput!): String!
@@ -306,9 +306,9 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewLink
+	var arg0 model.LinkInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNNewLink2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐNewLink(ctx, tmp)
+		arg0, err = ec.unmarshalNLinkInput2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐLinkInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -320,9 +320,9 @@ func (ec *executionContext) field_Mutation_createLink_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewUser
+	var arg0 model.UserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐNewUser(ctx, tmp)
+		arg0, err = ec.unmarshalNUserInput2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -569,7 +569,7 @@ func (ec *executionContext) _Mutation_createLink(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLink(rctx, args["input"].(model.NewLink))
+		return ec.resolvers.Mutation().CreateLink(rctx, args["input"].(model.LinkInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -610,7 +610,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(model.NewUser))
+		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(model.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1935,32 +1935,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLogin(ctx context.Context, obj interface{}) (model.Login, error) {
-	var it model.Login
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "username":
-			var err error
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "password":
-			var err error
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputNewLink(ctx context.Context, obj interface{}) (model.NewLink, error) {
-	var it model.NewLink
+func (ec *executionContext) unmarshalInputLinkInput(ctx context.Context, obj interface{}) (model.LinkInput, error) {
+	var it model.LinkInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -1983,8 +1959,8 @@ func (ec *executionContext) unmarshalInputNewLink(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
-	var it model.NewUser
+func (ec *executionContext) unmarshalInputLogin(ctx context.Context, obj interface{}) (model.Login, error) {
+	var it model.Login
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2016,6 +1992,30 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 		case "token":
 			var err error
 			it.Token, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (model.UserInput, error) {
+	var it model.UserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2521,16 +2521,12 @@ func (ec *executionContext) marshalNLink2ᚖgithubᚗcomᚋkhwjᚋhackernewsᚋg
 	return ec._Link(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNLinkInput2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐLinkInput(ctx context.Context, v interface{}) (model.LinkInput, error) {
+	return ec.unmarshalInputLinkInput(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNLogin2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐLogin(ctx context.Context, v interface{}) (model.Login, error) {
 	return ec.unmarshalInputLogin(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNNewLink2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐNewLink(ctx context.Context, v interface{}) (model.NewLink, error) {
-	return ec.unmarshalInputNewLink(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
-	return ec.unmarshalInputNewUser(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v interface{}) (model.RefreshTokenInput, error) {
@@ -2563,6 +2559,10 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋkhwjᚋhackernewsᚋg
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋkhwjᚋhackernewsᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (model.UserInput, error) {
+	return ec.unmarshalInputUserInput(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

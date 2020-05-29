@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS links(
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  title VARCHAR (255),
-  address VARCHAR (255),
+  description VARCHAR (255),
+  url VARCHAR (255),
   user_id INT,
   FOREIGN KEY (user_id) REFERENCES users(id),
   PRIMARY KEY (id)
