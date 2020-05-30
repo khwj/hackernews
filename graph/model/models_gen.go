@@ -2,21 +2,31 @@
 
 package model
 
+type AuthPayload struct {
+	Token *string `json:"token"`
+	User  *User   `json:"user"`
+}
+
+type Feed struct {
+	Links []*Link `json:"links"`
+	Count int     `json:"count"`
+}
+
 type Link struct {
 	ID          string `json:"id"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
-	User        *User  `json:"user"`
+	PostedBy    *User  `json:"postedBy"`
 }
 
-type LinkInput struct {
-	Description string `json:"description"`
-	URL         string `json:"url"`
-}
-
-type Login struct {
+type LoginInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type PostInput struct {
+	URL         string `json:"url"`
+	Description string `json:"description"`
 }
 
 type RefreshTokenInput struct {

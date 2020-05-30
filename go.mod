@@ -13,7 +13,7 @@ require (
 	github.com/go-chi/chi v4.1.1+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang-migrate/migrate v3.5.4+incompatible
-	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 )

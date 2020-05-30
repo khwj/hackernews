@@ -16,7 +16,7 @@ import (
 	"github.com/khwj/hackernews/pkg/jwt"
 )
 
-func (r *mutationResolver) CreateLink(ctx context.Context, input model.LinkInput) (*model.Link, error) {
+func (r *mutationResolver) Post(ctx context.Context, input model.PostInput) (*model.Link, error) {
 	user := auth.ForContext(ctx)
 	if user == nil {
 		return &model.Link{}, fmt.Errorf("Access denied")
@@ -24,61 +24,62 @@ func (r *mutationResolver) CreateLink(ctx context.Context, input model.LinkInput
 	var link links.Link
 	link.URL = input.URL
 	link.Description = input.Description
-	link.User = user
+	link.PostedBy = user
 	id := link.Save()
 	return &model.Link{
 		ID:          strconv.FormatInt(id, 10),
 		Description: link.Description,
 		URL:         link.URL,
-		User:        &model.User{ID: user.ID, Name: user.Username},
+		PostedBy:    &model.User{ID: user.ID, Name: user.Username},
 	}, nil
 }
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (string, error) {
+func (r *mutationResolver) Signup(ctx context.Context, input model.UserInput) (*model.AuthPayload, error) {
 	user := users.User{Username: input.Username, Password: input.Password}
 	token, err := jwt.GenerateToken(user.Username)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	user.Create()
-	return token, nil
+	return &model.AuthPayload{Token: &token, User: &model.User{Name: user.Username}}, nil
 }
 
-func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error) {
 	user := users.User{Username: input.Username, Password: input.Password}
 	if !user.Authenticate() {
-		return "", &users.WrongUsernameOrPasswordError{}
+		return nil, &users.WrongUsernameOrPasswordError{}
 	}
 	token, err := jwt.GenerateToken(user.Username)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return token, nil
+	return &model.AuthPayload{Token: &token, User: &model.User{Name: user.Username}}, nil
 }
 
-func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
+func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (*model.AuthPayload, error) {
 	username, err := jwt.ParseToken(input.Token)
 	if err != nil {
-		return "", fmt.Errorf("Access denied")
+		return nil, fmt.Errorf("Access denied")
 	}
 
 	token, err := jwt.GenerateToken(username)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return &model.AuthPayload{Token: &token, User: &model.User{Name: username}}, nil
 }
 
-func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
+func (r *queryResolver) Feed(ctx context.Context) (*model.Feed, error) {
 	dbLinks := links.GetAll()
 	var links []*model.Link
 	for _, link := range dbLinks {
-		user := model.User{ID: link.ID, Name: link.User.Username}
-		newLink := model.Link{ID: link.ID, Description: link.Description, URL: link.URL, User: &user}
+		user := model.User{ID: link.ID, Name: link.PostedBy.Username}
+		newLink := model.Link{ID: link.ID, Description: link.Description, URL: link.URL, PostedBy: &user}
 		links = append(links, &newLink)
 	}
-	return links, nil
+	feed := model.Feed{Links: links, Count: len(links)}
+	return &feed, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

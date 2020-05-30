@@ -12,7 +12,7 @@ type Link struct {
 	ID          string
 	Description string
 	URL         string
-	User        *users.User
+	PostedBy    *users.User
 }
 
 // Save ...
@@ -22,7 +22,7 @@ func (link Link) Save() int64 {
 		log.Fatal("Error preparing insert statement, ", err)
 	}
 
-	result, err := stmt.Exec(link.Description, link.URL, link.User.ID)
+	result, err := stmt.Exec(link.Description, link.URL, link.PostedBy.ID)
 	if err != nil {
 		log.Fatal("Error executing prepared statement, ", err)
 	}
@@ -55,7 +55,7 @@ func GetAll() []Link {
 		if err != nil {
 			log.Fatal("Error parsing query result, ", err)
 		}
-		link.User = &user
+		link.PostedBy = &user
 		links = append(links, link)
 	}
 

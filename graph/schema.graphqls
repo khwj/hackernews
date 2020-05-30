@@ -1,22 +1,39 @@
+type Query {
+  feed: Feed!
+}
+
+type Feed {
+  links: [Link!]!
+  count: Int!
+}
+
+type Mutation {
+  post(input: PostInput!): Link!
+  signup(input: UserInput!): AuthPayload
+  login(input: LoginInput!): AuthPayload
+  refreshToken(input: RefreshTokenInput!): AuthPayload
+}
+
+type AuthPayload {
+  token: String
+  user: User
+}
+
+input PostInput {
+  url: String!
+  description: String!
+}
+
 type Link {
   id: ID!
   description: String!
   url: String!
-  user: User!
+  postedBy: User!
 }
 
 type User {
   id: ID!
   name: String!
-}
-
-type Query {
-  links: [Link!]!
-}
-
-input LinkInput {
-  description: String!
-  url: String!
 }
 
 input RefreshTokenInput {
@@ -31,12 +48,4 @@ input UserInput {
 input LoginInput {
   username: String!
   password: String!
-}
-
-type Mutation {
-  createLink(input: LinkInput!): Link!
-  createUser(input: UserInput!): String!
-  login(input: LoginInput!): String!
-  # we'll talk about this in authentication section
-  refreshToken(input: RefreshTokenInput!): String!
 }
